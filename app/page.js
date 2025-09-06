@@ -26,6 +26,8 @@ export default function HomePage() {
   }
 
   const handleGenerate = async (settings) => {
+    console.log('Generate button clicked', { inputType, file, topicInput, settings })
+    
     if ((inputType === 'pdf' && !file) || (inputType === 'text' && !topicInput && !syllabusInput)) {
       setError('Please provide input to generate the quiz.')
       return
@@ -46,16 +48,22 @@ export default function HomePage() {
     }
 
     try {
-      const response = await fetch('/api/generate', {
+      console.log('Calling API...')
+      const response = await fetch('/api', {
         method: 'POST',
         body: formData,
       })
 
-      const data = await response.json()
-
+      console.log('Response status:', response.status)
+      
       if (!response.ok) {
-        throw new Error(data.details || 'Failed to generate quiz.')
+        const errorText = await response.text()
+        console.error('Response error:', errorText)
+        throw new Error(`HTTP ${response.status}: ${errorText}`)
       }
+
+      const data = await response.json()
+      console.log('Quiz data received:', data)
 
       setQuizData(data)
     } catch (err) {
@@ -77,7 +85,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-900 text-white">
-      <div className="w-full max-w-4xl opacity-100 translate-y-0">
+      <div className="w-full max-w-4xl">
         <div className="glass-effect rounded-3xl p-8 mb-8">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-2">Quiz Generator</h1>
@@ -155,12 +163,15 @@ export default function HomePage() {
               )}
 
               {error && (
-                <div className="text-center text-red-400 mb-4">{error}</div>
+                <div className="text-center text-red-400 mb-4 p-4 bg-red-900/20 rounded-lg border border-red-500/30">
+                  {error}
+                </div>
               )}
+              
               <QuizControls onGenerate={handleGenerate} isLoading={isLoading} />
             </>
           ) : (
-            <div className="opacity-100">
+            <div>
               <div className="mb-6 flex justify-end">
                 <button
                   onClick={handleReset}
