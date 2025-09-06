@@ -1,35 +1,57 @@
-'use client'
-
 import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Sparkles } from 'lucide-react'
+import { Settings, Download, FileText, Play } from 'lucide-react'
 
 export default function QuizControls({ onGenerate, isLoading }) {
-  const [controls, setControls] = useState({
-    questionCount: 5,
-    questionType: 'mixed',
-    difficulty: 'medium'
+  const [showSettings, setShowSettings] = useState(false)
+  const [settings, setSettings] = useState({
+    questionCount: 10,
+    difficulty: 'medium',
+    questionTypes: ['mcq', 'true-false', 'short-answer']
   })
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    onGenerate(controls)
+  const handleGenerate = () => {
+    onGenerate(settings)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="text-center">
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <p className="mt-2 text-white/60">Generating quiz...</p>
+      </div>
+    )
   }
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold text-white mb-6">Quiz Settings</h2>
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <button
+          onClick={() => setShowSettings(!showSettings)}
+          className="flex items-center space-x-2 px-4 py-2 bg-white/10 text-white/80 rounded-lg hover:bg-white/20 transition-colors"
+        >
+          <Settings size={18} />
+          <span>Settings</span>
+        </button>
+        
+        <button
+          onClick={handleGenerate}
+          className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+        >
+          <Play size={18} />
+          <span>Generate Quiz</span>
+        </button>
+      </div>
+
+      {showSettings && (
+        <div className="bg-white/5 rounded-lg p-4 space-y-4">
           <div>
             <label className="block text-white/80 text-sm font-medium mb-2">
               Number of Questions
             </label>
             <select
-              value={controls.questionCount}
-              onChange={(e) => setControls({...controls, questionCount: parseInt(e.target.value)})}
-              className="w-full px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:border-blue-400 focus:outline-none"
+              value={settings.questionCount}
+              onChange={(e) => setSettings({...settings, questionCount: parseInt(e.target.value)})}
+              className="w-full px-3 py-2 bg-white/10 text-white border border-white/20 rounded focus:outline-none focus:border-blue-400"
             >
               <option value={5}>5 Questions</option>
               <option value={10}>10 Questions</option>
@@ -40,27 +62,12 @@ export default function QuizControls({ onGenerate, isLoading }) {
 
           <div>
             <label className="block text-white/80 text-sm font-medium mb-2">
-              Question Type
+              Difficulty
             </label>
             <select
-              value={controls.questionType}
-              onChange={(e) => setControls({...controls, questionType: e.target.value})}
-              className="w-full px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:border-blue-400 focus:outline-none"
-            >
-              <option value="mixed">Mixed (MCQ + True/False)</option>
-              <option value="mcq">Multiple Choice Only</option>
-              <option value="truefalse">True/False Only</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-white/80 text-sm font-medium mb-2">
-              Difficulty Level
-            </label>
-            <select
-              value={controls.difficulty}
-              onChange={(e) => setControls({...controls, difficulty: e.target.value})}
-              className="w-full px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:border-blue-400 focus:outline-none"
+              value={settings.difficulty}
+              onChange={(e) => setSettings({...settings, difficulty: e.target.value})}
+              className="w-full px-3 py-2 bg-white/10 text-white border border-white/20 rounded focus:outline-none focus:border-blue-400"
             >
               <option value="easy">Easy</option>
               <option value="medium">Medium</option>
@@ -68,18 +75,7 @@ export default function QuizControls({ onGenerate, isLoading }) {
             </select>
           </div>
         </div>
-
-        <motion.button
-          type="submit"
-          disabled={isLoading}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-        >
-          <Sparkles className="mr-2" size={20} />
-          {isLoading ? 'Generating Quiz...' : 'Generate Quiz'}
-        </motion.button>
-      </form>
+      )}
     </div>
   )
 }
