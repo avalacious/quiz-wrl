@@ -46,7 +46,7 @@ export default function HomePage() {
     }
 
     try {
-      const response = await fetch('/api', {
+      const response = await fetch('/api/generate', {
         method: 'POST',
         body: formData,
       })
