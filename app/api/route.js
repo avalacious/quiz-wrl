@@ -7,7 +7,7 @@ export async function POST(request) {
   try {
     const contentType = request.headers.get('content-type') || '';
 
-    // ---------------- PDF INPUT ----------------
+    // --- PDF UPLOAD ---
     if (contentType.includes('multipart/form-data')) {
       const formData = await request.formData();
       const file = formData.get('pdf');
@@ -19,10 +19,11 @@ export async function POST(request) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
+      // dynamic import for vercel
       const pdf = (await import('pdf-parse')).default;
       const data = await pdf(buffer);
 
-      const prompt = `Generate a quiz based on the following PDF content:\n${data.text.slice(
+      const prompt = `Generate a quiz (5-10 questions with answers) from the following content:\n\n${data.text.slice(
         0,
         4000
       )}`;
@@ -31,25 +32,10 @@ export async function POST(request) {
       return NextResponse.json({ quiz: reply, pages: data.numpages });
     }
 
-    // ---------------- JSON INPUT ----------------
+    // --- TEXT INPUT ---
     const body = await request.json();
-
-    // Chat mode
-    if (body.message && body.context) {
-      const prompt = `You are a helpful study assistant. Context: ${body.context}
-      Student question: ${body.message}
-      Give a concise response (max 100 words).`;
-
-      const reply = await callGemini(prompt, { maxOutputTokens: 500 });
-      return NextResponse.json({ reply });
-    }
-
-    // Quiz generation from text/syllabus
     const prompt =
-      body.prompt ||
-      body.topicInput ||
-      body.syllabusInput ||
-      'Explain how AI works in a few words';
+      body.prompt || body.topicInput || body.syllabusInput || 'Explain how AI works in a few words';
 
     const reply = await callGemini(prompt);
     return NextResponse.json({ quiz: reply });
@@ -62,8 +48,7 @@ export async function POST(request) {
   }
 }
 
-// ---------------- HELPER: Gemini API ----------------
-async function callGemini(prompt, config = {}) {
+async function callGemini(prompt) {
   const geminiApiKey = process.env.GEMINI_API_KEY;
   if (!geminiApiKey) throw new Error('API key not configured.');
 
@@ -74,18 +59,13 @@ async function callGemini(prompt, config = {}) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: config.temperature || 0.7,
-          maxOutputTokens: config.maxOutputTokens || 300,
-        },
+        generationConfig: { temperature: 0.7, maxOutputTokens: 500 },
       }),
     }
   );
 
   const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error?.message || 'Gemini API request failed');
-  }
+  if (!response.ok) throw new Error(data.error?.message || 'Gemini API request failed');
 
   return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
 }
