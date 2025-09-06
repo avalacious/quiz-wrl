@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { Upload, XCircle } from 'lucide-react'
-import QuizControls from '@/components/QuizControls'
-import QuizResults from '@/components/QuizResults'
+import QuizControls from '../components/QuizControls'
+import QuizResults from '../components/QuizResults'
 
 export default function HomePage() {
   const [file, setFile] = useState(null)
