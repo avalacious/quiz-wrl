@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Upload, XCircle } from 'lucide-react';
-import QuizControls from './components/QuizControls';
+import { XCircle } from 'lucide-react';
 import QuizResults from './components/QuizResults';
 
 export default function HomePage() {
@@ -26,7 +25,7 @@ export default function HomePage() {
     }
   };
 
-  const handleGenerate = async (settings) => {
+  const handleGenerate = async () => {
     if ((inputType === 'pdf' && !file) || (inputType === 'text' && !topicInput && !syllabusInput)) {
       setError('Please provide input to generate the quiz.');
       return;
@@ -46,12 +45,7 @@ export default function HomePage() {
         response = await fetch('/api', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            inputType,
-            topicInput,
-            syllabusInput,
-            settings,
-          }),
+          body: JSON.stringify({ topicInput, syllabusInput }),
         });
       }
 
@@ -116,7 +110,7 @@ export default function HomePage() {
       </div>
 
       <button
-        onClick={() => handleGenerate({ difficulty: 'medium' })}
+        onClick={handleGenerate}
         disabled={isLoading}
         className="bg-blue-500 text-white px-4 py-2 rounded"
       >
