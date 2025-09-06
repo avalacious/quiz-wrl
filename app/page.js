@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { Upload, XCircle } from 'lucide-react'
 import QuizControls from '@/components/QuizControls'
 import QuizResults from '@/components/QuizResults'
@@ -78,11 +77,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-900 text-white">
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-4xl"
-      >
+      <div className="w-full max-w-4xl opacity-100 translate-y-0">
         <div className="glass-effect rounded-3xl p-8 mb-8">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-2">Quiz Generator</h1>
@@ -165,10 +160,7 @@ export default function HomePage() {
               <QuizControls onGenerate={handleGenerate} isLoading={isLoading} />
             </>
           ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
+            <div className="opacity-100">
               <div className="mb-6 flex justify-end">
                 <button
                   onClick={handleReset}
@@ -178,10 +170,10 @@ export default function HomePage() {
                 </button>
               </div>
               <QuizResults data={quizData} />
-            </motion.div>
+            </div>
           )}
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }
